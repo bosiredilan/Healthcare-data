@@ -1,0 +1,67 @@
+name: Weekly Retrain – AfyaPredict KE
+
+on:
+  schedule:
+    - cron: "0 12 * * 6"
+  workflow_dispatch:
+
+jobs:
+  retrain:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: afyapredict
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install UV and dependencies
+        run: |
+          pip install uv
+          uv pip install -r requirements-train.txt --system
+
+      - name: Configure Kaggle credentials
+        run: |
+          mkdir -p ~/.kaggle
+          echo '{"username":"${{ secrets.KAGGLE_USERNAME }}","key":"${{ secrets.KAGGLE_KEY }}"}' > ~/.kaggle/kaggle.json
+          chmod 600 ~/.kaggle/kaggle.json
+
+      - name: Run AfyaPredict KE pipeline
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/afyapredict
+        run: |
+          python scripts/ingest.py
+          python scripts/clean.py
+          python scripts/kenyanize.py
+          python scripts/load.py
+          python ml/train.py
+
+      - name: Commit model artifacts
+        run: |
+          git config user.name  "AfyaPredict KE Bot"
+          git config user.email "bot@afyapredict.ke"
+          git add models/
+          git diff --staged --quiet || \
+            git commit -m "chore: retrain model $(date -u +%Y-%m-%dT%H:%M:%SZ) [skip ci]"
+          git push
+
+      - name: Trigger Render zero-downtime redeploy
+        if: success()
+        run: curl -fsS -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
