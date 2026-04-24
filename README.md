@@ -4,6 +4,8 @@
 
 # 🏥 AfyaPredict KE: Kenyan Clinical Test Intelligence Platform
 
+You can access the live application here: **[AfyaPredict KE](https://afyapredict-ke.onrender.com/)**
+
 **AfyaPredict KE** is a production-grade machine learning system designed to bridge the gap between raw patient admission records and automated clinical test result predictions within the Kenyan healthcare context. Built on a FastAPI backend, the platform leverages a dataset of 55,000+ records to predict test outcomes as **Normal**, **Abnormal**, or **Inconclusive**.
 
 The system is fully automated: it retrains every Saturday via GitHub Actions to ensure the model adapts to new data trends without human intervention.
@@ -18,8 +20,7 @@ In many Kenyan clinical settings, manual processing of admission data is time-co
 3.  **Data Storage**: Cleaned records are persisted in a PostgreSQL database using SQLAlchemy for robust data management.
 4.  **ML Training**: `ml/train.py` encodes 8 features, scales numeric values, and compares **XGBoost** vs. **Random Forest**. The best model (typically Random Forest for this noise level) is saved as `model.joblib`.
 5.  **Model Serving**: A FastAPI wrapper exposes a `/predict` endpoint. The model is held in-memory for sub-millisecond inference.
-6.  **Automated Retraining**: A GitHub Actions cron job (`0 12 * * 6`) retrains the model every Saturday at noon UTC, ensuring zero-drift.
-7.  **Frontend**: A localized web interface (Swa-English) allows users to input data and see real-time visualizations of the prediction probability.
+6.  **Frontend**: A localized web interface (Swa-English) allows users to input data and see real-time visualizations of the prediction probability.
 
 
 ## 🛠️ Technical Stack
@@ -67,13 +68,12 @@ In many Kenyan clinical settings, manual processing of admission data is time-co
 ├── .github/workflows/retrain.yml  # Automated Saturday retraining
 ├── app/
 │   ├── main.py                    # FastAPI Entry point
-│   ├── routes.py                  # API Endpoints (/predict, /retrain)
-│   └── model_loader.py            # Singleton for loading .joblib files
+│   ├── models.py                  # API Endpoints (/predict, /retrain)
+│   ├── schemas.py
+│   ├── database.py                # SQLAlchemy ORM
+│   └── predict.py                 # Singleton for loading .joblib files
 ├── data/
-│   └── cleaned_healthcare.csv      # Localized dataset
-├── database/
-│   ├── models.py                  # SQLAlchemy ORM
-│   └── queries.sql                # Table Schemas
+│   └── cleaned_healthcare_ke.csv      # Localized dataset
 ├── ml/
 │   ├── train.py                   # Model selection & training logic
 │   └── preprocess.py              # Scaling and Encoding
