@@ -1,5 +1,3 @@
-Based on the repository provided and the specific changes you requested for the Kenyan market context (currency and local providers), here is a comprehensive `README.md` for your project.
-
 ---
 
 # 🏥 AfyaPredict KE: Kenyan Clinical Test Intelligence Platform
