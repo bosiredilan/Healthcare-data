@@ -40,7 +40,8 @@ In many Kenyan clinical settings, manual processing of admission data is time-co
 
 ## 📸 Screenshots
 ### Prediction UI — Live Result
-![AfyaPredict KE UI](https://i.imgur.com/your-image-link-here.png)
+<img width="1038" height="845" alt="health predictor web" src="https://github.com/user-attachments/assets/5a906ba6-8974-4907-b744-92d25f18bd54" />
+
 *Patient data submitted: Age 80 · Female · B+ · Emergency · Billing KES 45,500 · NHIF · Diabetes · SP — Predicted **Abnormal** with 49% confidence.*
 
 ## 🧬 Dataset Features (Localized for Kenya)
